@@ -96,21 +96,21 @@ attn_group.add_argument("--attention-pytorch", action="store_true")
 parser.add_argument("--disable-xformers", action="store_true")
 
 vram_group = parser.add_mutually_exclusive_group()
-vram_group.add_argument("--always-gpu", action="store_true")
-vram_group.add_argument("--always-high-vram", action="store_true")
-vram_group.add_argument("--always-normal-vram", action="store_true")
-vram_group.add_argument("--always-low-vram", action="store_true")
-vram_group.add_argument("--always-no-vram", action="store_true")
+vram_group.add_argument("--always-gpu", default=True)
+vram_group.add_argument("--always-high-vram", default=True)
+vram_group.add_argument("--always-normal-vram", default=False)
+vram_group.add_argument("--always-low-vram", default=False)
+vram_group.add_argument("--always-no-vram", default=False)
 vram_group.add_argument("--always-cpu", type=int, nargs="?", metavar="CPU_NUM_THREADS", const=-1)
 
-parser.add_argument("--always-offload-from-vram", action="store_true")
+parser.add_argument("--always-offload-from-vram", default=False)
 parser.add_argument("--pytorch-deterministic", action="store_true")
 
-parser.add_argument("--disable-server-log", action="store_true")
-parser.add_argument("--debug-mode", action="store_true")
-parser.add_argument("--is-windows-embedded-python", action="store_true")
+parser.add_argument("--disable-server-log", default=False)
+parser.add_argument("--debug-mode", default=False)
+parser.add_argument("--is-windows-embedded-python", default=False)
 
-parser.add_argument("--disable-server-info", action="store_true")
+parser.add_argument("--disable-server-info", default = False)
 
 parser.add_argument("--multi-user", action="store_true")
 
