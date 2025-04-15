@@ -46,8 +46,7 @@ class PatchSettings:
         self.eps_record = None
 
 
-patch_settings = {}
-
+patch_settings = []
 
 def calculate_weight_patched(self, patches, weight, key):
     for p in patches:
@@ -211,12 +210,12 @@ class BrownianTreeNoiseSamplerPatched:
 
 def compute_cfg(uncond, cond, cfg_scale, t):
     pid = os.getpid()
-    mimic_cfg = float(patch_settings[pid].adaptive_cfg)
+    mimic_cfg = float(patch_settings[0].adaptive_cfg)
     real_cfg = float(cfg_scale)
 
     real_eps = uncond + real_cfg * (cond - uncond)
 
-    if cfg_scale > patch_settings[pid].adaptive_cfg:
+    if cfg_scale > patch_settings[0].adaptive_cfg:
         mimicked_eps = uncond + mimic_cfg * (cond - uncond)
         return real_eps * t + mimicked_eps * (1 - t)
     else:
@@ -229,8 +228,8 @@ def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, mode
     if math.isclose(cond_scale, 1.0) and not model_options.get("disable_cfg1_optimization", False):
         final_x0 = calc_cond_uncond_batch(model, cond, None, x, timestep, model_options)[0]
 
-        if patch_settings[pid].eps_record is not None:
-            patch_settings[pid].eps_record = ((x - final_x0) / timestep).cpu()
+        if patch_settings[0].eps_record is not None:
+            patch_settings[0].eps_record = ((x - final_x0) / timestep).cpu()
 
         return final_x0
 
@@ -239,16 +238,16 @@ def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, mode
     positive_eps = x - positive_x0
     negative_eps = x - negative_x0
 
-    alpha = 0.001 * patch_settings[pid].sharpness * patch_settings[pid].global_diffusion_progress
+    alpha = 0.001 * patch_settings[0].sharpness * patch_settings[0].global_diffusion_progress
 
     positive_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
     positive_eps_degraded_weighted = positive_eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
     final_eps = compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted,
-                            cfg_scale=cond_scale, t=patch_settings[pid].global_diffusion_progress)
+                            cfg_scale=cond_scale, t=patch_settings[0].global_diffusion_progress)
 
-    if patch_settings[pid].eps_record is not None:
-        patch_settings[pid].eps_record = (final_eps / timestep).cpu()
+    if patch_settings[0].eps_record is not None:
+        patch_settings[0].eps_record = (final_eps / timestep).cpu()
 
     return x - final_eps
 
@@ -271,11 +270,11 @@ def sdxl_encode_adm_patched(self, **kwargs):
     pid = os.getpid()
 
     if kwargs.get("prompt_type", "") == "negative":
-        width = float(width) * patch_settings[pid].negative_adm_scale
-        height = float(height) * patch_settings[pid].negative_adm_scale
+        width = float(width) * patch_settings[0].negative_adm_scale
+        height = float(height) * patch_settings[0].negative_adm_scale
     elif kwargs.get("prompt_type", "") == "positive":
-        width = float(width) * patch_settings[pid].positive_adm_scale
-        height = float(height) * patch_settings[pid].positive_adm_scale
+        width = float(width) * patch_settings[0].positive_adm_scale
+        height = float(height) * patch_settings[0].positive_adm_scale
 
     def embedder(number_list):
         h = self.embedder(torch.tensor(number_list, dtype=torch.float32))
@@ -329,7 +328,7 @@ def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, 
 
 def timed_adm(y, timesteps):
     if isinstance(y, torch.Tensor) and int(y.dim()) == 2 and int(y.shape[1]) == 5632:
-        y_mask = (timesteps > 999.0 * (1.0 - float(patch_settings[os.getpid()].adm_scaler_end))).to(y)[..., None]
+        y_mask = (timesteps > 999.0 * (1.0 - float(patch_settings[0].adm_scaler_end))).to(y)[..., None]
         y_with_adm = y[..., :2816].clone()
         y_without_adm = y[..., 2816:].clone()
         return y_with_adm * y_mask + y_without_adm * (1.0 - y_mask)
@@ -365,17 +364,17 @@ def patched_cldm_forward(self, x, hint, timesteps, context, y=None, **kwargs):
     h = self.middle_block(h, emb, context)
     outs.append(self.middle_block_out(h, emb, context))
 
-    if patch_settings[pid].controlnet_softness > 0:
+    if patch_settings[0].controlnet_softness > 0:
         for i in range(10):
             k = 1.0 - float(i) / 9.0
-            outs[i] = outs[i] * (1.0 - patch_settings[pid].controlnet_softness * k)
+            outs[i] = outs[i] * (1.0 - patch_settings[0].controlnet_softness * k)
 
     return outs
 
 
 def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=None, transformer_options={}, **kwargs):
     self.current_step = 1.0 - timesteps.to(x) / 999.0
-    patch_settings[os.getpid()].global_diffusion_progress = float(self.current_step.detach().cpu().numpy().tolist()[0])
+    patch_settings[0].global_diffusion_progress = float(self.current_step.detach().cpu().numpy().tolist()[0])
 
     y = timed_adm(y, timesteps)
 
