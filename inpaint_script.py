@@ -145,8 +145,8 @@ def run_inpaint(image_path, mask_path, prompt, output_path=None, strength=0.7):
 
 if __name__ == "__main__":
     # Example usage
-    images_path = r'/root/comfyui/data/input'
-    masks_path = r'/root/comfyui/data/mask'
+    images_path = r'/root/Fooocus_inpaint/data/input'
+    masks_path = r'/root/Fooocus_inpaint/data/mask'
     output_path = r'/root/Fooocus_inpaint/inpaint_out_15_steps'
     if not os.path.exists(output_path):
         os.makedirs(output_path)
