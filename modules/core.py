@@ -285,19 +285,17 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     if "noise_mask" in latent:
         noise_mask = latent["noise_mask"]
 
-    previewer = get_previewer(model)
 
     if previewer_start is None:
         previewer_start = 0
-
+    previewer_end = None
     if previewer_end is None:
         previewer_end = steps
-
+    disable_preview=True
     def callback(step, x0, x, total_steps):
         ldm_patched.modules.model_management.throw_exception_if_processing_interrupted()
         y = None
-        if previewer is not None and not disable_preview:
-            y = previewer(x0, previewer_start + step, previewer_end)
+
         if callback_function is not None:
             callback_function(previewer_start + step, x0, x, previewer_end, y)
 

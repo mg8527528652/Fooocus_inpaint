@@ -281,15 +281,7 @@ def process_task(all_steps, async_task, callback, controlnet_canny_path, control
                     total_count, show_intermediate_results, persist_image=True):
     if async_task.last_stop is not False:
         ldm_patched.modules.model_management.interrupt_current_processing()
-    if 'cn' in goals:
-        for cn_flag, cn_path in [
-            (flags.cn_canny, controlnet_canny_path),
-            (flags.cn_cpds, controlnet_cpds_path)
-        ]:
-            for cn_img, cn_stop, cn_weight in async_task.cn_tasks[cn_flag]:
-                positive_cond, negative_cond = core.apply_controlnet(
-                    positive_cond, negative_cond,
-                    pipeline.loaded_ControlNets[cn_path], cn_img, cn_weight, 0, cn_stop)
+
     imgs = pipeline.process_diffusion(
         positive_cond=positive_cond,
         negative_cond=negative_cond,

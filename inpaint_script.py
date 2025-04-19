@@ -4,7 +4,7 @@ import json
 import time
 import numpy as np
 from PIL import Image
-
+import random
 # Set up environment variables
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
@@ -15,15 +15,9 @@ args = args_manager.parse_args()
 args.disable_image_log = True
 args.disable_metadata = True
 
-import modules.config as config
-import modules.flags as flags
-import modules.async_worker as worker
-import modules.core as core
-import ldm_patched.modules.model_management as model_management
-from modules.sdxl_styles import legal_style_names
-from modules.util import HWC3, resize_image, get_file_from_folder_list
-from modules.private_logger import log
 
+import ldm_patched.modules.model_management as model_management
+from modules.util import HWC3, resize_image
 from modules.async_worker import AsyncTask, handler
 
 
@@ -73,6 +67,7 @@ def get_inpaint_task(image_path, mask_path, prompt, strength=0.7, args_json_path
     args_dict['inpaint_mask_image_upload'] = mask_input
     args_dict['inpaint_additional_prompt'] = prompt
     args_dict['prompt'] = prompt
+    args_dict['seed'] = random.randint(0, 10000000)
     # args_dict['inpaint_strength'] = strength
     # args_dict['inpaint_disable_initial_latent'] = False  # Critical for proper inpainting
     # args_dict['inpaint_respective_field'] = 0.618  # Balanced respective field
