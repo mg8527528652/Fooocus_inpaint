@@ -2,7 +2,6 @@ import os
 import sys
 import json
 import time
-import torch
 import numpy as np
 from PIL import Image
 
@@ -12,7 +11,7 @@ os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
 
 # Initialize Fooocus
 import args_manager
-args = args_manager.args
+args = args_manager.parse_args()
 args.disable_image_log = True
 args.disable_metadata = True
 
@@ -147,14 +146,16 @@ if __name__ == "__main__":
     # Example usage
     images_path = r'/root/Fooocus_inpaint/data/input'
     masks_path = r'/root/Fooocus_inpaint/data/mask'
-    output_path = r'/root/Fooocus_inpaint/inpaint_out_15_steps'
+    output_path = r'/root/Fooocus_inpaint/data/output'
     if not os.path.exists(output_path):
         os.makedirs(output_path)
+    # for i in range(10):
     for image_name in os.listdir(images_path):
         # if image_name != '12_replace basket flower with fruits and vegetables.jpg':
         #     continue
         image_path = os.path.join(images_path, image_name)
         mask_name, prompt = image_name.split('.')[0].split('_')
+        # prompt = 'mountain'
         mask_path = os.path.join(masks_path, mask_name + '.jpg')
         time_start = time.time()
         result_path = run_inpaint(
@@ -168,7 +169,7 @@ if __name__ == "__main__":
         print(f"Total Time taken: {time_end - time_start:.2f} seconds for {image_name}")
         print(f"Generated image saved to: {result_path}")
         print('*'*100   , 'Inference completed', '*'*100)
-    
+
 
     # result_path = run_inpaint(
     #         "/root/comfyui/data/input/13_a chair.jpg",

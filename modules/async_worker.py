@@ -1159,7 +1159,11 @@ def handler(async_task: AsyncTask):
             current_progress = int(preparation_steps + (100 - preparation_steps) / float(all_steps) * async_task.steps * (current_task_id + 1))
             images_to_enhance += imgs
             print(termcolor.colored(f'process_task time: {time.time() - st:.2f} seconds', 'cyan'))
-
+        # # Clean up CUDA memory
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                if hasattr(torch.cuda, 'memory_stats'):
+                    torch.cuda.reset_peak_memory_stats()
         except ldm_patched.modules.model_management.InterruptProcessingException:
             if async_task.last_stop == 'skip':
                 print('User skipped')

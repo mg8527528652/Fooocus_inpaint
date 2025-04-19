@@ -58,7 +58,7 @@
     "skipping_cn_preprocessor": false,
     "canny_low_threshold": 64,
     "canny_high_threshold": 128,
-    "refiner_swap_method": "joint",
+    "refiner_swap_method": "separate",
     "controlnet_softness": 0.25,
     "freeu_enabled": false,
     "freeu_b1": 1.01,

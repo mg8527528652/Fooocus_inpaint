@@ -236,7 +236,7 @@ if cpu_state == CPUState.MPS:
 
 print(f"Set vram state to: {vram_state.name}")
 
-ALWAYS_VRAM_OFFLOAD = args.always_offload_from_vram
+ALWAYS_VRAM_OFFLOAD = False
 
 if ALWAYS_VRAM_OFFLOAD:
     print("Always offload VRAM")
