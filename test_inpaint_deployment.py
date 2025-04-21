@@ -16,7 +16,7 @@ def test_inpaint_service(image_path, mask_path, prompt, host="localhost", port=8
         "mask_url": mask_path,
         "order_id": f"test_{int(time.time())}",
         "negative_prompt": "low quality, blurry, distortion",
-        "strength": 0.8,
+        "strength": 1.0,
         "image_extension": "png"
     }
     
@@ -48,18 +48,18 @@ def test_inpaint_service(image_path, mask_path, prompt, host="localhost", port=8
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test the Fooocus Inpaint service")
-    parser.add_argument("--image", required=True, help="Path or URL to the input image")
-    parser.add_argument("--mask", required=True, help="Path or URL to the mask image")
-    parser.add_argument("--prompt", required=True, help="Prompt for inpainting")
+    parser.add_argument("--image", required=False, default = 'https://phot-user-uploads.s3.us-east-2.amazonaws.com/frontend_upload/file_drops/c102d7b2-f4c9-4801-9e56-53add7ea7743.jpg', help="Path or URL to the input image")
+    parser.add_argument("--mask", required=False, default = 'https://phot-user-uploads.s3.us-east-2.amazonaws.com/base64URLs/2025-04-21/bcd26904-4175-48c7-a151-bba2dc284ac6.webp', help="Path or URL to the mask image")
+    parser.add_argument("--prompt", required=False, default = 'fruits', help="Prompt for inpainting")
     parser.add_argument("--host", default="localhost", help="Host where the service is running")
     parser.add_argument("--port", default=8000, type=int, help="Port where the service is running")
     
     args = parser.parse_args()
-    
+    # for i in range(10):
     test_inpaint_service(
         args.image,
         args.mask,
         args.prompt,
         host=args.host,
         port=args.port
-    ) 
+        ) 

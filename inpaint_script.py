@@ -110,10 +110,11 @@ def run_inpaint(image_path, mask_path, prompt, output_path=None, strength=0.7):
         
         results = handler(task)
         # # Clean up CUDA memory
-        # if torch.cuda.is_available():
-        #     torch.cuda.empty_cache()
-        #     if hasattr(torch.cuda, 'memory_stats'):
-        #         torch.cuda.reset_peak_memory_stats()
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            if hasattr(torch.cuda, 'memory_stats'):
+                torch.cuda.reset_peak_memory_stats()
         
         # Save and return result
         if not results:
